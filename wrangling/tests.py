@@ -1,5 +1,4 @@
 import unittest
-import pickle
 from csv import DictReader
 from collections import Counter
 
@@ -24,6 +23,7 @@ kALASKA = """LINE,STATE ABBREVIATION,STATE,D,FEC ID#,(I),CANDIDATE NAME (First),
 66,AK,Alaska,,n/a,,,,,,,,,,,,,,,,,,
 """.split("\n")
 
+
 class TestDistrictMargins(unittest.TestCase):
 
     def test_margins(self):
@@ -42,37 +42,17 @@ class TestDistrictMargins(unittest.TestCase):
 
 class TestWordCounts(unittest.TestCase):
     def test_zip(self):
-        self.assertEqual(set(str(x) for x in
-                             text_from_zipfile("../data/test.zip")),
+        self.assertEqual(set(x.decode('utf-8') for x in
+                             text_from_zipfile("data/test.zip")),
                          set(["FOO\n", "BAR\n", "BAZ\n"]))
 
     def test_words(self):
         self.assertEqual(set(words("Yes, we can certainly find real words, Frank!")),
                          set(["certainly", "find", "real", "words", "frank"]))
 
-    def test_accumulate_counts(self):
+    def accumulate_counts(self):
         self.assertEqual(Counter(["a", "b", "c", "c"]),
                          accumulate_counts(["a", "b", "c", "c"]))
 
-class TestAuto(unittest.TestCase):
-    def test_auto(self):
-        with open("public.pkl", 'rb') as infile:
-            key = pickle.load(infile)
-            for fname in key:
-                for ii, rr in key[fname]:
-                    check_against = globals()[fname](ii)
-                    print("Testing %s\n\tInput: %s\n\tExpected: %s\n\tGot: %s" %
-                          (fname, str(ii)[:60], str(rr)[:60], str(check_against)[:60]))
-                    if isinstance(rr, dict):
-                        for jj in rr:
-                            self.assertTrue(jj in check_against,
-                                            msg="Missing key %s in test %s" %
-                                            (jj, fname))
-                            self.assertAlmostEqual(rr[jj], check_against[jj],
-                                                   places=2)
-                        self.assertEqual(rr.keys(), check_against.keys())
-                    else:
-                        self.assertEqual(rr, check_against)
-                    
 if __name__ == '__main__':
     unittest.main()
